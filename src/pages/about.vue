@@ -35,7 +35,11 @@
         reply:'',
         type:'',
         username:'',
-        toname:''
+        toname:'',
+        conid:'',
+        channel:'',
+        fromid:'',
+        date:''
       }
     },
     // ready () {
@@ -56,24 +60,24 @@
       this.avatar=data.Avatar
       //this.title=data.Name
       this.toid=data.To_Id
+      this.fromid=data.From_Id
       this.userid=data.userid
       this.username=data.NameLogin
-      this.title=data.To_Name
-      console.log(this.toname)
-    })
-    .catch(e=>{
-      //this.cekopen=true;
-      //window.location = "/";
-      if(e)
-      {
-        localStorage.removeItem('token');
-        window.location = "/";
-      }
-    })
-    let types='';
+      this.title=data.Name
+      this.conid=data.Con_Id
+      this.channel=this.conid
+      console.log(response.data)
+      this.date=(function () {
+            var now = new Date();
+            var hours = now.getHours();
+            var minutes = now.getMinutes();
+            return hours + ':' + minutes;
+          })()
+    console.log(this.date)
+     let types='';
     let pengirim='';
-    this.pusher.subscribe('my-channel', channel => {
-    channel.bind('my-event', ({ message,type,sentby,setbyname }) => {
+    this.pusher.subscribe('my-channel_'+this.conid, channel => {
+    channel.bind('my-event_'+this.conid, ({ message,type,sentby,setbyname }) => {
       if (message.trim().length === 0) return;
       if(this.userid!=sentby)
       {
@@ -100,6 +104,17 @@
         });
     });
 });
+    })
+    .catch(e=>{
+      //this.cekopen=true;
+      //window.location = "/";
+      if(e)
+      {
+        localStorage.removeItem('token');
+        window.location = "/";
+      }
+    })
+    
    },
     methods: {
       onClick: function (event) {
@@ -130,7 +145,10 @@
         // });
     this.$http.post('http://localhost:52088/api/Chat/',{
       Reply:this.reply,
-      To_Id:this.toid
+      To_Id:this.toid,
+      Con_Id:this.conid,
+      From_Id:this.fromid,
+      Timestamp:this.date
     })
     .then(response=>{
       // var data = response.data;
@@ -151,6 +169,13 @@
     title:function(){
      this.title
      console.log(this.toname)
+    },
+    Datefx:function()
+    {
+      var now = new Date();
+      var hours = now.getHours();
+      var minutes = now.getMinutes();
+      return hours + ':' + minutes;
     }
   }
 </script>
